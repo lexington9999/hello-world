@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>ChessMaster Pro — iPad Trainer</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ SPLASH SCREEN ══════════════════════════════════════ -->
+<div id="splash">
+  <div class="splash-glow"></div>
+  <div class="splash-content">
+    <div class="splash-king">♔</div>
+    <h1>ChessMaster Pro</h1>
+    <p>iPad Training Suite</p>
+    <div class="splash-loader">
+      <div class="splash-bar"></div>
+    </div>
+    <span id="splash-status">Initialising engine…</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ MAIN APP ══════════════════════════════════════ -->
+<div id="app" class="hidden">
+
+  <!-- ── Header ── -->
+  <header id="header">
+    <div class="header-left">
+      <span class="logo-icon">♔</span>
+      <span class="logo-text">ChessMaster <em>Pro</em></span>
+    </div>
+    <div class="header-center">
+      <div id="eval-bar-wrap">
+        <div id="eval-bar">
+          <div id="eval-fill"></div>
+          <span id="eval-label">0.0</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn" id="btn-flip" title="Flip board">⇅</button>
+      <button class="icon-btn" id="btn-settings" title="Settings">⚙</button>
+    </div>
+  </header>
+
+  <!-- ── Main Layout ── -->
+  <main id="main-layout">
+
+    <!-- ── LEFT PANEL ── -->
+    <aside id="left-panel">
+
+      <div class="panel-card" id="player-cards">
+        <div class="player-card" id="card-black">
+          <span class="player-avatar">👤</span>
+          <div class="player-info">
+            <span class="player-name">Black</span>
+            <span class="player-rating">---</span>
+          </div>
+          <div class="player-clock" id="clock-black">--:--</div>
+        </div>
+        <div class="player-card active" id="card-white">
+          <span class="player-avatar">👤</span>
+          <div class="player-info">
+            <span class="player-name">White</span>
+            <span class="player-rating">---</span>
+          </div>
+          <div class="player-clock" id="clock-white">--:--</div>
+        </div>
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="panel-card" id="mode-card">
+        <div class="section-title">Mode</div>
+        <div class="mode-tabs">
+          <button class="mode-tab active" data-mode="free">Free Play</button>
+          <button class="mode-tab" data-mode="train">Training</button>
+          <button class="mode-tab" data-mode="pdf">PDF Study</button>
+          <button class="mode-tab" data-mode="puzzle">Puzzles</button>
+        </div>
+      </div>
+
+      <!-- Engine Controls -->
+      <div class="panel-card" id="engine-card">
+        <div class="section-title">Analysis</div>
+        <div class="engine-row">
+          <label>Depth</label>
+          <input type="range" id="depth-slider" min="5" max="25" value="15" step="1">
+          <span id="depth-label">15</span>
+        </div>
+        <div class="engine-row">
+          <label>Play as</label>
+          <select id="side-select">
+            <option value="both">Both sides</option>
+            <option value="white">White</option>
+            <option value="black">Black</option>
+          </select>
+        </div>
+        <div class="engine-row">
+          <label>Skill</label>
+          <select id="skill-select">
+            <option value="20">Master (2800+)</option>
+            <option value="15">Expert (2000)</option>
+            <option value="10" selected>Club (1500)</option>
+            <option value="5">Beginner (1000)</option>
+            <option value="0">Novice (500)</option>
+          </select>
+        </div>
+        <button id="btn-analyze" class="btn-primary full-width">⚡ Analyze Position</button>
+      </div>
+
+      <!-- PDF Upload -->
+      <div class="panel-card" id="pdf-card">
+        <div class="section-title">📄 PDF Study</div>
+        <div class="upload-zone" id="pdf-drop">
+          <span>Drop PDF or tap to upload</span>
+          <input type="file" id="pdf-file" accept=".pdf" style="display:none">
+        </div>
+        <div id="pdf-page-controls" class="hidden">
+          <div class="pdf-nav">
+            <button id="pdf-prev">◀</button>
+            <span id="pdf-page-info">Page 1 / 1</span>
+            <button id="pdf-next">▶</button>
+          </div>
+          <button id="btn-extract-moves" class="btn-accent full-width">Extract Moves</button>
+          <div id="pdf-preview-wrap">
+            <canvas id="pdf-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── BOARD AREA ── -->
+    <section id="board-section">
+      <div id="board-wrap">
+        <div id="coord-top" class="coords coords-h"></div>
+        <div id="board-row">
+          <div id="coord-left" class="coords coords-v"></div>
+          <div id="board-container">
+            <canvas id="board-canvas"></canvas>
+            <canvas id="piece-canvas"></canvas>
+            <canvas id="overlay-canvas"></canvas>
+          </div>
+          <div id="coord-right" class="coords coords-v"></div>
+        </div>
+        <div id="coord-bottom" class="coords coords-h"></div>
+      </div>
+
+      <!-- Board controls -->
+      <div id="board-controls">
+        <button class="ctrl-btn" id="btn-start" title="Start">⏮</button>
+        <button class="ctrl-btn" id="btn-prev" title="Previous">◀</button>
+        <button class="ctrl-btn" id="btn-takeback" title="Takeback">↩</button>
+        <button class="ctrl-btn" id="btn-next" title="Next">▶</button>
+        <button class="ctrl-btn" id="btn-end" title="End">⏭</button>
+        <button class="ctrl-btn danger" id="btn-new" title="New Game">✕ New</button>
+      </div>
+
+      <!-- Last move badge -->
+      <div id="move-badge" class="hidden">
+        <span id="move-badge-icon">✓</span>
+        <span id="move-badge-text">Good move!</span>
+      </div>
+    </section>
+
+    <!-- ── RIGHT PANEL ── -->
+    <aside id="right-panel">
+
+      <!-- Move Quality Legend -->
+      <div class="panel-card" id="legend-card">
+        <div class="section-title">Move Quality</div>
+        <div class="legend-grid">
+          <div class="legend-item"><span class="badge brilliant">!!</span><span>Brilliant</span></div>
+          <div class="legend-item"><span class="badge great">!</span><span>Great</span></div>
+          <div class="legend-item"><span class="badge best">✓</span><span>Best</span></div>
+          <div class="legend-item"><span class="badge good">≈</span><span>Good</span></div>
+          <div class="legend-item"><span class="badge inaccuracy">?</span><span>Inaccuracy</span></div>
+          <div class="legend-item"><span class="badge mistake">??</span><span>Mistake</span></div>
+          <div class="legend-item"><span class="badge blunder">✗</span><span>Blunder</span></div>
+        </div>
+      </div>
+
+      <!-- Move History -->
+      <div class="panel-card" id="history-card">
+        <div class="section-title">Move History</div>
+        <div id="move-list"></div>
+      </div>
+
+      <!-- Position Info -->
+      <div class="panel-card" id="info-card">
+        <div class="section-title">Position</div>
+        <div id="engine-lines">
+          <div class="engine-line-item" id="line-1">
+            <span class="line-score">---</span>
+            <span class="line-moves">Waiting for analysis…</span>
+          </div>
+          <div class="engine-line-item" id="line-2">
+            <span class="line-score"></span>
+            <span class="line-moves"></span>
+          </div>
+          <div class="engine-line-item" id="line-3">
+            <span class="line-score"></span>
+            <span class="line-moves"></span>
+          </div>
+        </div>
+        <div id="position-stats">
+          <div class="stat-row"><span>Material</span><span id="stat-material">0</span></div>
+          <div class="stat-row"><span>Phase</span><span id="stat-phase">Opening</span></div>
+          <div class="stat-row"><span>Turn</span><span id="stat-turn">White</span></div>
+          <div class="stat-row"><span>Moves</span><span id="stat-moves">0</span></div>
+        </div>
+      </div>
+
+      <!-- PDF Moves List -->
+      <div class="panel-card hidden" id="pdf-moves-card">
+        <div class="section-title">📋 Extracted Moves</div>
+        <div id="pdf-moves-list"></div>
+        <button id="btn-load-pdf-game" class="btn-accent full-width">▶ Play This Game</button>
+      </div>
+
+      <!-- Hints -->
+      <div class="panel-card" id="hint-card">
+        <div class="section-title">Training Hints</div>
+        <button class="btn-secondary full-width" id="btn-hint">💡 Show Hint</button>
+        <div id="hint-text"></div>
+        <div id="threat-text"></div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- ── Toast ── -->
+  <div id="toast-container"></div>
+
+  <!-- ── Settings Modal ── -->
+  <div id="settings-modal" class="modal hidden">
+    <div class="modal-box">
+      <h2>⚙ Settings</h2>
+      <div class="setting-row">
+        <label>Board Theme</label>
+        <select id="board-theme">
+          <option value="cosmic">Cosmic Purple</option>
+          <option value="emerald">Emerald Green</option>
+          <option value="ocean">Ocean Blue</option>
+          <option value="fire">Fire Red</option>
+          <option value="classic">Classic Wood</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label>Piece Set</label>
+        <select id="piece-set">
+          <option value="neon">Neon Glow</option>
+          <option value="classic">Classic</option>
+          <option value="emoji">Emoji</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <label>Sound Effects</label>
+        <input type="checkbox" id="sound-toggle" checked>
+      </div>
+      <div class="setting-row">
+        <label>Show Coordinates</label>
+        <input type="checkbox" id="coords-toggle" checked>
+      </div>
+      <div class="setting-row">
+        <label>Auto-Analysis</label>
+        <input type="checkbox" id="auto-analysis" checked>
+      </div>
+      <div class="setting-row">
+        <label>Animation Speed</label>
+        <select id="anim-speed">
+          <option value="fast">Fast</option>
+          <option value="normal" selected>Normal</option>
+          <option value="slow">Slow</option>
+        </select>
+      </div>
+      <div class="modal-btns">
+        <button id="btn-close-settings" class="btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════ SCRIPTS ════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  // Set PDF.js worker path
+  if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+</script>
+<script src="js/board.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/trainer.js"></script>
+<script src="js/pdfReader.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
