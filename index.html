@@ -287,13 +287,11 @@
 </div>
 
 <!-- ════════════════════════════════════ SCRIPTS ════════════════════════════════════ -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="js/vendor/chess.js"></script>
+<script src="js/vendor/pdf.min.js"></script>
 <script>
-  // Set PDF.js worker path
   if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/vendor/pdf.worker.min.js';
   }
 </script>
 <script src="js/board.js"></script>

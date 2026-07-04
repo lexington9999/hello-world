@@ -12,25 +12,15 @@ const Engine = (() => {
   let depth   = 15;
   let skillLevel = 10;
 
-  // CDN stockfish
-  const STOCKFISH_CDN =
-    'https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js';
+  const STOCKFISH_WORKER = 'js/vendor/stockfish-worker.js';
 
   function init(onReady) {
     try {
-      worker = new Worker(STOCKFISH_CDN);
+      worker = new Worker(STOCKFISH_WORKER);
     } catch(e) {
-      // Fallback: create blob worker
-      console.warn('Direct Worker failed, trying blob…', e);
-      try {
-        const blob = new Blob([`importScripts('${STOCKFISH_CDN}');`],
-          {type:'application/javascript'});
-        worker = new Worker(URL.createObjectURL(blob));
-      } catch(e2) {
-        console.error('Stockfish load failed:', e2);
-        if (onReady) onReady(false);
-        return;
-      }
+      console.error('Stockfish load failed:', e);
+      if (onReady) onReady(false);
+      return;
     }
 
     worker.onmessage = (e) => {
@@ -51,6 +41,10 @@ const Engine = (() => {
     }, 5000);
 
     function handleMessage(line) {
+      if (line === 'worker-ready') {
+        worker.postMessage('uci');
+        return;
+      }
       if (line === 'uciok') {
         worker.postMessage('setoption name MultiPV value 3');
         worker.postMessage(`setoption name Skill Level value ${skillLevel}`);
