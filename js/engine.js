@@ -12,7 +12,7 @@ const Engine = (() => {
   let depth   = 15;
   let skillLevel = 10;
 
-  const STOCKFISH_WORKER = 'js/vendor/stockfish-worker.js';
+  const STOCKFISH_WORKER = 'js/vendor/stockfish.js';
 
   function init(onReady) {
     try {
@@ -40,11 +40,10 @@ const Engine = (() => {
       }
     }, 5000);
 
+    // Kick off UCI handshake immediately
+    worker.postMessage('uci');
+
     function handleMessage(line) {
-      if (line === 'worker-ready') {
-        worker.postMessage('uci');
-        return;
-      }
       if (line === 'uciok') {
         worker.postMessage('setoption name MultiPV value 3');
         worker.postMessage(`setoption name Skill Level value ${skillLevel}`);
