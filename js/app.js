@@ -110,9 +110,7 @@ const App = (() => {
       }
     }, 5000);
 
-    Board.init();
     bindUI();
-    render();
   }
 
   function hideSplash() {
@@ -122,7 +120,12 @@ const App = (() => {
     setTimeout(() => {
       splash.classList.add('hidden');
       document.getElementById('app').classList.remove('hidden');
-      Board.render(getPosition());
+      // Wait one frame so the browser lays out the now-visible app div
+      // before Board.resize() reads clientWidth/clientHeight.
+      requestAnimationFrame(() => {
+        Board.init();
+        render();
+      });
     }, 500);
   }
 
